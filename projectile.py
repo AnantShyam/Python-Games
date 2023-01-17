@@ -36,10 +36,14 @@ clock = pygame.time.Clock()
 
 def main():
     proj = Projectile(10, math.pi)
-    button1 = Button("Increase Initial Velocity", (255, 255, 255), 100, 500, 175, 25)
+    vbutton = Button("Increase Initial Velocity", (255, 255, 255), 100, 500, 175, 25)
+    angbutton = Button("Increase Initial Angle", (255, 255, 255), 300, 500, 160, 25)
+    vbutton2 = Button("Decrease Initial Velocity", (255, 255, 255), 100, 550, 175, 25)
+    angbutton2 = Button("Decrease Initial Angle", (255, 255, 255), 300, 550, 160, 25)
+    buttons = [vbutton, angbutton, vbutton2, angbutton2]
     running = True 
-    clicked = False
     velocity = 0
+    angle = 0
     while running:
         # Draw TextBox to get User input
         for event in pygame.event.get():
@@ -48,11 +52,34 @@ def main():
                 running = False
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
-                pass
+                # check if the button1 is clicked
+                for i in range(len(buttons)):
+                    if mouse[0] >= buttons[i].left and mouse[0] <= buttons[i].left + buttons[i].width:
+                        if mouse[1] >= buttons[i].top and mouse[1] <= buttons[i].top + buttons[i].height:
+                            if i == 0 and velocity < 20:
+                                velocity += 1 
+                            elif i == 1 and angle <= 90:
+                                angle += 5
+                            elif i == 2 and velocity > 0:
+                                velocity -= 1 
+                            elif i == 3 and angle > 0:
+                                angle -= 5
+
+        instructions = [f"Velocity: {velocity}", f"Angle: {angle}"]
+        font = pygame.font.SysFont('Times New Roman', 18)
+        labels = [
+            font.render(instructions[i], 1, (0, 0, 0)) for i in range(len(instructions))
+        ]
 
         screen.fill((0, 255, 0))
         proj.draw_projectile()
-        button1.draw_button()
+        for button in buttons:
+            button.draw_button()
+
+        for i in range(len(labels)):
+            screen.blit(labels[i], (10, 100 + (i * 20)))
+        
+        mouse = pygame.mouse.get_pos()
 
         pygame.display.update()
         clock.tick(10)
