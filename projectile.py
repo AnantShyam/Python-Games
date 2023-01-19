@@ -12,6 +12,17 @@ class Projectile:
     
     def draw_projectile(self):
         pygame.draw.circle(screen, (255, 0, 255), (self.x, self.y), 10, 0)
+    
+    def erase_projectile(self, x, y):
+        pygame.draw.circle(screen, (0, 255, 0), (x, y), 10, 0)
+
+    def move_along_x(self):
+        velx = self.velocity * math.cos(self.angle)
+        self.erase_projectile(self.x, self.y)
+        self.x += velx 
+        self.draw_projectile()
+    
+
 
 class Button:
 
@@ -35,15 +46,16 @@ screen = pygame.display.set_mode((dimension, dimension))
 clock = pygame.time.Clock()
 
 def main():
-    proj = Projectile(10, math.pi)
     vbutton = Button("Increase Initial Velocity", (255, 255, 255), 100, 500, 175, 25)
     angbutton = Button("Increase Initial Angle", (255, 255, 255), 300, 500, 160, 25)
     vbutton2 = Button("Decrease Initial Velocity", (255, 255, 255), 100, 550, 175, 25)
     angbutton2 = Button("Decrease Initial Angle", (255, 255, 255), 300, 550, 160, 25)
-    buttons = [vbutton, angbutton, vbutton2, angbutton2]
+    runbutton = Button("Run Simulation", (255, 255, 255), 300, 100, 120, 25)
+    buttons = [vbutton, angbutton, vbutton2, angbutton2, runbutton]
     running = True 
     velocity = 0
     angle = 0
+    proj = Projectile(velocity, angle)
     while running:
         # Draw TextBox to get User input
         for event in pygame.event.get():
@@ -64,7 +76,16 @@ def main():
                                 velocity -= 1 
                             elif i == 3 and angle > 0:
                                 angle -= 5
-
+                            elif i == 4:
+                                if velocity == 0:
+                                    pass
+                                else:
+                                    proj.velocity = velocity
+                                    proj.angle = angle
+                                    while proj.x < dimension:
+                                        proj.move_along_x()
+                                        pygame.display.update()
+                                        clock.tick(10)
         instructions = [f"Velocity: {velocity}", f"Angle: {angle}"]
         font = pygame.font.SysFont('Times New Roman', 18)
         labels = [
