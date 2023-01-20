@@ -22,7 +22,22 @@ class Projectile:
         self.x += velx 
         self.draw_projectile()
     
+    def move(self):
+        # calculate parabolic motion equation
+        self.angle = self.angle * math.pi/180
+        range = (self.velocity ** 2) * math.sin(2 * self.angle)/10
+        maxheight = (self.velocity * math.sin(self.angle)) ** 2
+        maxheight = maxheight/20
+        vertex_x = range/2
+        a = -1 * maxheight / ((vertex_x) ** 2)
 
+        # continuously move the projectile
+        velx = self.velocity * math.cos(self.angle)
+        self.erase_projectile(self.x, self.y)
+        self.x += velx
+        self.y += (a * ((self.x - vertex_x) ** 2)) + maxheight
+        self.draw_projectile()
+        
 
 class Button:
 
@@ -83,9 +98,10 @@ def main():
                                     proj.velocity = velocity
                                     proj.angle = angle
                                     while proj.x < dimension:
-                                        proj.move_along_x()
+                                        proj.move()
                                         pygame.display.update()
                                         clock.tick(10)
+                                        
         instructions = [f"Velocity: {velocity}", f"Angle: {angle}"]
         font = pygame.font.SysFont('Times New Roman', 18)
         labels = [
