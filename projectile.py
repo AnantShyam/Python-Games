@@ -21,21 +21,29 @@ class Projectile:
         self.erase_projectile(self.x, self.y)
         self.x += velx 
         self.draw_projectile()
+
+    def find_range(self):
+        ang = self.angle * math.pi/180
+        return (self.velocity ** 2) * math.sin(2 * ang)/10
+    
+    def find_max_height(self):
+        ang = self.angle * math.pi/180
+        maxheight = (self.velocity * math.sin(ang)) ** 2
+        return maxheight/20
     
     def move(self):
         # calculate parabolic motion equation
-        self.angle = self.angle * math.pi/180
-        range = (self.velocity ** 2) * math.sin(2 * self.angle)/10
-        maxheight = (self.velocity * math.sin(self.angle)) ** 2
-        maxheight = maxheight/20
-        vertex_x = range/2
-        a = -1 * maxheight / ((vertex_x) ** 2)
-
+        range = self.find_range()
+        maxheight = self.find_max_height()
+        h, k = 100 + range/2, maxheight + dimension - 400
+        a = (dimension - 400 - k)/((100 - h) ** 2)
+        
         # continuously move the projectile
         velx = self.velocity * math.cos(self.angle)
         self.erase_projectile(self.x, self.y)
-        self.x += velx
-        self.y += (a * ((self.x - vertex_x) ** 2)) + maxheight
+        self.x += velx/2
+        init_y = (a * ((self.x - h) ** 2)) + maxheight
+        self.y += 800 - init_y
         self.draw_projectile()
         
 
@@ -83,12 +91,12 @@ def main():
                 for i in range(len(buttons)):
                     if mouse[0] >= buttons[i].left and mouse[0] <= buttons[i].left + buttons[i].width:
                         if mouse[1] >= buttons[i].top and mouse[1] <= buttons[i].top + buttons[i].height:
-                            if i == 0 and velocity < 20:
-                                velocity += 1 
+                            if i == 0 and velocity < 100:
+                                velocity += 5
                             elif i == 1 and angle <= 90:
                                 angle += 5
                             elif i == 2 and velocity > 0:
-                                velocity -= 1 
+                                velocity -= 5
                             elif i == 3 and angle > 0:
                                 angle -= 5
                             elif i == 4:
@@ -97,12 +105,12 @@ def main():
                                 else:
                                     proj.velocity = velocity
                                     proj.angle = angle
-                                    while proj.x < dimension:
+                                    while proj.x < proj.find_range():
                                         proj.move()
                                         pygame.display.update()
                                         clock.tick(10)
                                         
-        instructions = [f"Velocity: {velocity}", f"Angle: {angle}"]
+        instructions = [f"Initial Velocity: {velocity}", f"Initial Angle: {angle}"]
         font = pygame.font.SysFont('Times New Roman', 18)
         labels = [
             font.render(instructions[i], 1, (0, 0, 0)) for i in range(len(instructions))
